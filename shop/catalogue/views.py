@@ -4,6 +4,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Product, CartItem
 from django.views.decorators.http import require_POST
 
+
+from django.contrib.auth.decorators import login_required
+from .forms import ProductForm
 def list_products(request):
     products = Product.objects.all()
     return render(request, "catalogue/products.html", {"products": products})
@@ -24,9 +27,13 @@ def add_to_cart(request, id):
     if not created:
         cart_item.quantity += 1
         cart_item.save()
-    return redirect('cart_detail')
+    return redirect('list_products')
 
+
+@login_required
 def cart_detail(request):
+    print('User authenticated:', request.user.is_authenticated)
+    print('Session key:', request.session.session_key)
     session_key = request.session.session_key
     if not session_key:
         cart_items = []
@@ -42,3 +49,18 @@ def remove_from_cart(request, id):
         cart_item = get_object_or_404(CartItem, pk=id, session_key=session_key)
         cart_item.delete()
     return redirect('cart_detail')
+
+
+@login_required
+def product_upload(request):
+    if request.method == 'POST':
+        form = ProductForm
+
+        if form.is_valid():
+            form.save()
+            return redirect('product_list')
+
+    else:
+        form = ProductForm()
+    return render(request, 'catalogue/product_upload.html', {'form': form})
+
