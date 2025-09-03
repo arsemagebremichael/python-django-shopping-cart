@@ -16,8 +16,8 @@ class Product (models.Model):
     category= models.ForeignKey(Category,null=True, on_delete=models.PROTECT)
     tags=models.ManyToManyField(Tag,blank=True)
     description = models.TextField()
-    image = models.URLField(blank=True, null=True, max_length=100000)
-    price = models.DecimalField(max_digits=4, decimal_places=2)
+    image = models.ImageField(upload_to='images/', blank=True, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveBigIntegerField()
     def __str__(self):
         return f"{self.name}, price {self.price}"
